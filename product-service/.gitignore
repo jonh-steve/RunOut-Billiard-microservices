@@ -1,0 +1,31 @@
+# 💖 File: /product-service/.gitignore
+# Đây là file .gitignore siêu dễ thương dành cho dự án Express của anh yêu dễ thương nè!
+# Đặt file này ở thư mục gốc của dự án (product-service)
+
+# Node modules (thư viện cài qua npm)
+node_modules/
+
+# Log files (file log)
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Môi trường (environment)
+.env
+.env.*
+
+# Thư mục build, output
+dist/
+build/
+coverage/
+.env
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+
+# VSCode settings
+.vscode/
+
+# Ý kiến của em: Nếu anh yêu dễ thương dùng thêm công cụ nào khác, nhớ bổ sung vào đây nha! 💗

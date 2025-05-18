@@ -1,0 +1,190 @@
+
+services:
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: runout-api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SERVICE_NAME=api-gateway
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - PRODUCT_SERVICE_URL=http://product-service:3002
+      - CART_SERVICE_URL=http://cart-service:3003
+      - ORDER_SERVICE_URL=http://order-service:3004
+      - PAYMENT_SERVICE_URL=http://payment-service:3005
+    volumes:
+      - ./api-gateway/logs:/usr/src/app/logs
+    depends_on:
+      - auth-service
+      - product-service
+      - cart-service
+      - order-service
+      - payment-service
+    networks:
+      - runout-network
+
+  # Auth Service
+  auth-service:
+    build: ./auth-service
+    container_name: runout-auth-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - SERVICE_NAME=auth-service
+      - MONGODB_URI=mongodb://mongo-auth:27017/runout-auth
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - BCRYPT_SALT_ROUNDS=10
+    volumes:
+      - ./auth-service/logs:/usr/src/app/logs
+    depends_on:
+      - mongo-auth
+    networks:
+      - runout-network
+
+  # Product Service
+  product-service:
+    build: ./product-service
+    container_name: runout-product-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - SERVICE_NAME=product-service
+      - MONGODB_URI=mongodb://mongo-product:27017/runout-product
+    volumes:
+      - ./product-service/logs:/usr/src/app/logs
+    depends_on:
+      - mongo-product
+    networks:
+      - runout-network
+
+  # Cart Service
+  cart-service:
+    build: ./cart-service
+    container_name: runout-cart-service
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - SERVICE_NAME=cart-service
+      - MONGODB_URI=mongodb://mongo-cart:27017/runout-cart
+    volumes:
+      - ./cart-service/logs:/usr/src/app/logs
+    depends_on:
+      - mongo-cart
+    networks:
+      - runout-network
+
+  # Order Service
+  order-service:
+    build: ./order-service
+    container_name: runout-order-service
+    restart: unless-stopped
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - SERVICE_NAME=order-service
+      - MONGODB_URI=mongodb://mongo-order:27017/runout-order
+    volumes:
+      - ./order-service/logs:/usr/src/app/logs
+    depends_on:
+      - mongo-order
+    networks:
+      - runout-network
+
+  # Payment Service
+  payment-service:
+    build: ./payment-service
+    container_name: runout-payment-service
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - SERVICE_NAME=payment-service
+      - MONGODB_URI=mongodb://mongo-payment:27017/runout-payment
+    volumes:
+      - ./payment-service/logs:/usr/src/app/logs
+    depends_on:
+      - mongo-payment
+    networks:
+      - runout-network
+
+  # MongoDB for Auth Service
+  mongo-auth:
+    image: mongo:6.0
+    container_name: runout-mongo-auth
+    restart: unless-stopped
+    volumes:
+      - mongo-data-auth:/data/db
+    networks:
+      - runout-network
+
+  # MongoDB for Product Service
+  mongo-product:
+    image: mongo:6.0
+    container_name: runout-mongo-product
+    restart: unless-stopped
+    volumes:
+      - mongo-data-product:/data/db
+    networks:
+      - runout-network
+
+  # MongoDB for Cart Service
+  mongo-cart:
+    image: mongo:6.0
+    container_name: runout-mongo-cart
+    restart: unless-stopped
+    volumes:
+      - mongo-data-cart:/data/db
+    networks:
+      - runout-network
+
+  # MongoDB for Order Service
+  mongo-order:
+    image: mongo:6.0
+    container_name: runout-mongo-order
+    restart: unless-stopped
+    volumes:
+      - mongo-data-order:/data/db
+    networks:
+      - runout-network
+
+  # MongoDB for Payment Service
+  mongo-payment:
+    image: mongo:6.0
+    container_name: runout-mongo-payment
+    restart: unless-stopped
+    volumes:
+      - mongo-data-payment:/data/db
+    networks:
+      - runout-network
+
+# Volumes
+volumes:
+  mongo-data-auth:
+  mongo-data-product:
+  mongo-data-cart:
+  mongo-data-order:
+  mongo-data-payment:
+
+# Networks
+networks:
+  runout-network:
+    driver: bridge
