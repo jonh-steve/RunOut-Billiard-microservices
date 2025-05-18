@@ -1,12 +1,13 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Cài đặt Python và build tools sử dụng apk (Alpine package manager)
+RUN apk add --no-cache python3 g++ make git
 
+COPY package*.json ./
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --include=dev
 
 # Copy source code
 COPY . .

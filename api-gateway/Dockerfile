@@ -1,9 +1,12 @@
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
+# Cài đặt Python và build tools
+# Cài đặt Python và build tools sử dụng apk (Alpine package manager)
+RUN apk add --no-cache python3 g++ make git
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
+
 
 # Install dependencies
 RUN npm install --omit=dev

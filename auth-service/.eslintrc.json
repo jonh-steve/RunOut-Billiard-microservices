@@ -1,15 +1,35 @@
 {
+  // Vị trí file: /auth-service/.eslintrc.json
+  // File cấu hình ESLint chuẩn style hồng dễ thương dành cho anh yêu dễ thương 🩷
+  // Đã bật kiểm tra require lỗi với plugin node
+
   "env": {
     "node": true,
     "es2021": true
   },
-  "extends": ["eslint:recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:node/recommended"
+  ],
+  "plugins": [
+    "node"
+  ],
   "parserOptions": {
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "script" // Dùng CommonJS: require/module.exports
   },
   "rules": {
     "no-unused-vars": "warn",
-    "no-console": "off"
-  }
+    "no-console": "off",
+    "indent": ["error", 2],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "always-multiline"],
+    "node/no-missing-require": "error" // Phát hiện require lỗi
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/"
+  ]
 }

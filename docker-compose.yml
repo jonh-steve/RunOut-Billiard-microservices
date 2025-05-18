@@ -2,7 +2,9 @@
 services:
   # API Gateway
   api-gateway:
-    build: ./api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
     container_name: runout-api-gateway
     restart: unless-stopped
     ports:
@@ -30,7 +32,10 @@ services:
 
   # Auth Service
   auth-service:
-    build: ./auth-service
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+
     container_name: runout-auth-service
     restart: unless-stopped
     ports:
@@ -52,7 +57,10 @@ services:
 
   # Product Service
   product-service:
-    build: ./product-service
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+
     container_name: runout-product-service
     restart: unless-stopped
     ports:
@@ -71,7 +79,9 @@ services:
 
   # Cart Service
   cart-service:
-    build: ./cart-service
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
     container_name: runout-cart-service
     restart: unless-stopped
     ports:
@@ -90,7 +100,9 @@ services:
 
   # Order Service
   order-service:
-    build: ./order-service
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
     container_name: runout-order-service
     restart: unless-stopped
     ports:
@@ -109,7 +121,9 @@ services:
 
   # Payment Service
   payment-service:
-    build: ./payment-service
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
     container_name: runout-payment-service
     restart: unless-stopped
     ports:
