@@ -10,6 +10,7 @@ const startServer = async () => {
   try {
     // Connect to MongoDB
     await connectDB();
+    // console.log(`MongoDB connected successfully`);
     
     // Start the server
     const server = app.listen(PORT, () => {
@@ -20,7 +21,8 @@ const startServer = async () => {
     process.on('unhandledRejection', (err) => {
       console.error(`Unhandled Rejection: ${err.message}`);
       server.close(() => {
-        process.exit(1);
+        throw err;
+        // process.exit(1);
       });
     });
 
@@ -33,7 +35,8 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error(`Error starting server: ${error.message}`);
-    process.exit(1);
+    throw error;
+    // process.exit(1);
   }
 };
 

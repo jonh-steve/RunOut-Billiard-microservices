@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const corsOptions = require('./config/cors');
 const healthRoutes = require('./routes/healthRoutes');
+const productRoutes = require('./routes/product.routes');
+// const categoryRoutes = require('./routes/');
 
 // Initialize express app
 const app = express();
@@ -13,7 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/health', healthRoutes);
-
+// Mount routes
+app.use('/api/products', productRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -31,6 +34,7 @@ app.use((err, req, res, next) => {
     message: statusCode === 500 ? 'Internal server error' : err.message,
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
+  next();
 });
 
 module.exports = app;
