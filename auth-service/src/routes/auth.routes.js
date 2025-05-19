@@ -1,6 +1,6 @@
 const express = require('express');
-const { validateRegister } = require('../middleware/validate.middleware');
-const { registerUser } = require('../controllers/auth.controller');
+const { validateRegister ,validateLogin} = require('../middleware/validate.middleware');
+const { registerUser,loginUser } = require('../controllers/auth.controller');
 
 const router = express.Router();
 
@@ -10,5 +10,12 @@ const router = express.Router();
  * @access Public
  */
 router.post('/register', validateRegister, registerUser);
+
+/**
+ * @route POST /api/auth/login
+ * @desc Đăng nhập người dùng
+ * @access Public
+ */
+router.post('/login', validateLogin, loginUser);
 
 module.exports = router;

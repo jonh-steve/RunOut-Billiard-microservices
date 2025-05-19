@@ -1,4 +1,8 @@
 
+# File: docker-compose.yml
+# Mô tả: Cấu hình Docker Compose với hot reload cho môi trường phát triển
+# Vị trí: Thư mục gốc của dự án
+
 services:
   # API Gateway
   api-gateway:
@@ -10,7 +14,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3000
       - SERVICE_NAME=api-gateway
       - JWT_SECRET=${JWT_SECRET}
@@ -21,6 +25,8 @@ services:
       - PAYMENT_SERVICE_URL=http://payment-service:3005
     volumes:
       - ./api-gateway/logs:/usr/src/app/logs
+      - ./api-gateway:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - auth-service
       - product-service
@@ -35,13 +41,12 @@ services:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
-
     container_name: runout-auth-service
     restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3001
       - SERVICE_NAME=auth-service
       - MONGODB_URI=mongodb://mongo-auth:27017/runout-auth
@@ -50,6 +55,8 @@ services:
       - BCRYPT_SALT_ROUNDS=10
     volumes:
       - ./auth-service/logs:/usr/src/app/logs
+      - ./auth-service:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - mongo-auth
     networks:
@@ -60,18 +67,19 @@ services:
     build:
       context: ./product-service
       dockerfile: Dockerfile
-
     container_name: runout-product-service
     restart: unless-stopped
     ports:
       - "3002:3002"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3002
       - SERVICE_NAME=product-service
       - MONGODB_URI=mongodb://mongo-product:27017/runout-product
     volumes:
       - ./product-service/logs:/usr/src/app/logs
+      - ./product-service:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - mongo-product
     networks:
@@ -87,12 +95,14 @@ services:
     ports:
       - "3003:3003"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3003
       - SERVICE_NAME=cart-service
       - MONGODB_URI=mongodb://mongo-cart:27017/runout-cart
     volumes:
       - ./cart-service/logs:/usr/src/app/logs
+      - ./cart-service:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - mongo-cart
     networks:
@@ -108,12 +118,14 @@ services:
     ports:
       - "3004:3004"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3004
       - SERVICE_NAME=order-service
       - MONGODB_URI=mongodb://mongo-order:27017/runout-order
     volumes:
       - ./order-service/logs:/usr/src/app/logs
+      - ./order-service:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - mongo-order
     networks:
@@ -129,12 +141,14 @@ services:
     ports:
       - "3005:3005"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # Thay đổi thành development để hỗ trợ hot reload
       - PORT=3005
       - SERVICE_NAME=payment-service
       - MONGODB_URI=mongodb://mongo-payment:27017/runout-payment
     volumes:
       - ./payment-service/logs:/usr/src/app/logs
+      - ./payment-service:/usr/src/app # Thêm volume mount cho hot reload
+      - /usr/src/app/node_modules # Giữ nguyên node_modules trong container
     depends_on:
       - mongo-payment
     networks:

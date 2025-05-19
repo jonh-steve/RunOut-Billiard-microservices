@@ -8,42 +8,42 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, 'Vui lòng nhập email hợp lệ']
+    match: [/^\S+@\S+\.\S+$/, 'Vui lòng nhập email hợp lệ'],
   },
   password: {
     type: String,
     required: true,
-    minlength: 6
+    minlength: 6,
   },
   fullName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   phone: {
     type: String,
     trim: true,
-    match: [/^[0-9]{10,11}$/, 'Vui lòng nhập số điện thoại hợp lệ (10-11 số)']
+    match: [/^[0-9]{10,11}$/, 'Vui lòng nhập số điện thoại hợp lệ (10-11 số)'],
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: 'user'
+    default: 'user',
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 }, {
-  timestamps: true
+  timestamps: true,
 });
 
 // Middleware để hash password trước khi lưu
