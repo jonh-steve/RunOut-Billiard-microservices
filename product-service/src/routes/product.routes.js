@@ -7,7 +7,6 @@ const express = require("express");
 const { authenticate, requireAdmin  } = require("../middleware/auth.middleware");
 // const { validateObjectId } = require("../middleware/validate.middleware");
 const { validateCreateProduct , validateUpdateProduct } = require("../middleware/validate.middleware");
-const { validateProduct } = require("../middleware/validate.middleware");
 const productController = require("../controllers/product.controller");
 
 const router = express.Router();

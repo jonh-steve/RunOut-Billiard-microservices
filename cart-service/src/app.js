@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const { ensureSessionId } = require('./middleware/session.middleware');
 const corsOptions = require('./config/cors');
 const healthRoutes = require('./routes/healthRoutes');
-
+const cartRoutes = require('./routes/cart.routes');
 // Initialize express app
 const app = express();
 
@@ -10,9 +12,11 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
+app.use(ensureSessionId());
 // Routes
 app.use('/health', healthRoutes);
+app.use('/api/carts', cartRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -1,0 +1,2 @@
+# .npmrc
+shared-workspace=true

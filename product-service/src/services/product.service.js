@@ -6,7 +6,7 @@
 const Product = require("../models/product.model");
 const logger = require("../utils/logger");
 const Category = require("../models/category.model");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 // const slugify = require("slugify");
 
 /**

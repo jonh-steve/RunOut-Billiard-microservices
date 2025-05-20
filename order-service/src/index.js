@@ -20,7 +20,9 @@ const startServer = async () => {
     process.on('unhandledRejection', (err) => {
       console.error(`Unhandled Rejection: ${err.message}`);
       server.close(() => {
-        process.exit(1);
+        // process.exit(1);
+        console.log('Server closed due to unhandled rejection');
+        throw new Error('Unhandled Rejection');
       });
     });
 
@@ -33,7 +35,9 @@ const startServer = async () => {
     });
   } catch (error) {
     console.error(`Error starting server: ${error.message}`);
-    process.exit(1);
+    // process.exit(1);
+    console.log('Server failed to start due to error');
+    throw new Error('Server failed to start');
   }
 };
 
