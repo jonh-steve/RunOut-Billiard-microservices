@@ -35,6 +35,7 @@ app.use((err, req, res, next) => {
     message: statusCode === 500 ? 'Internal server error' : err.message,
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
   });
+  next();
 });
 
 module.exports = app;

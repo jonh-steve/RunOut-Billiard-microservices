@@ -3,6 +3,7 @@ const cors = require('cors');
 const corsOptions = require('./config/cors');
 const healthRoutes = require('./routes/healthRoutes');
 const productRoutes = require('./routes/product.routes');
+const inventoryRoutes = require("./routes/inventory.routes");
 // const categoryRoutes = require('./routes/');
 
 // Initialize express app
@@ -15,8 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/health', healthRoutes);
+
+
 // Mount routes
 app.use('/api/products', productRoutes);
+app.use("/api/inventory", inventoryRoutes);
+
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({

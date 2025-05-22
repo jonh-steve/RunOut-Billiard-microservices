@@ -4,7 +4,7 @@
  * Style: Hồng dễ thương dành cho anh yêu dễ thương 🩷
  */
 const mongoose = require('mongoose');
-
+const { ApiError } = require("../utils/error-handler");
 /**
  * Middleware kiểm tra dữ liệu đầu vào cho cập nhật sản phẩm (UC-2.5)
  */
@@ -100,8 +100,68 @@ const validateCreateProduct = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware kiểm tra dữ liệu đầu vào cho request khôi phục tồn kho
+ * Liên quan đến UC-8.3: Khôi phục tồn kho khi đơn hàng được hoàn tiền
+ */
+const validateRestoreInventoryRequest = (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+    const errors = [];
+
+    // Kiểm tra orderId
+    if (!orderId) {
+      errors.push('Order ID is required');
+    } else if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      errors.push('Invalid Order ID format');
+    }
+
+    // Nếu có lỗi
+    if (errors.length > 0) {
+      throw new ApiError(400, 'Validation failed: ' + errors.join(', '), true);
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+/**
+ * Middleware kiểm tra dữ liệu đầu vào cho request khôi phục tồn kho đơn hàng bị hủy
+ * UC-8.4
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const validateCancelledOrderInventoryRequest = (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+    const errors = [];
+
+    // Kiểm tra orderId
+    if (!orderId) {
+      errors.push('Order ID is required');
+    } else if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      errors.push('Invalid Order ID format');
+    }
+
+    // Nếu có lỗi
+    if (errors.length > 0) {
+      throw new ApiError(400, 'Validation failed: ' + errors.join(', '), true);
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 // Export các hàm middleware validation
 module.exports = {
   validateUpdateProduct,
-  validateCreateProduct
+  validateCreateProduct,
+  validateRestoreInventoryRequest,
+  validateCancelledOrderInventoryRequest
 };

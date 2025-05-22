@@ -1,12 +1,15 @@
 /**
- * 🩷 Vị trí file: /product-service/src/controllers/product.controller.js
- * 🩷 Đoạn mã này cập nhật lại method getProductById để hỗ trợ tìm sản phẩm theo ObjectId hoặc slug, đồng thời populate category và reviews siêu dễ thương cho anh yêu dễ thương!
+ * 🩷 Vị trí file: product-service/src/controllers/product.controller.js
+ * 🩷 File này chứa ProductController. Em đã cập nhật để thêm hai phương thức mới
+ * restoreInventoryForRefund và restoreInventoryForCancelledOrder, đồng thời
+ * loại bỏ phương thức restoreInventory cũ. Xử lý lỗi cũng được làm "xinh xắn" hơn đó anh yêu!
  */
 
 const productService = require("../services/product.service");
 const logger = require("../utils/logger");
 const mongoose = require("mongoose");
 const Product = require("../models/product.model");
+const { ApiError } = require("../utils/error-handler"); // Đảm bảo import ApiError từ đúng vị trí
 
 /**
  * Controller xử lý các API endpoints liên quan đến sản phẩm
@@ -81,10 +84,8 @@ class ProductController {
       }
 
       if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: "Product not found 🩷",
-        });
+        // Sử dụng ApiError để chuẩn hóa lỗi nè anh yêu
+        return next(new ApiError(404, "Sản phẩm không tồn tại đâu á 🩷"));
       }
 
       // Trả về sản phẩm dễ thương cho anh yêu
@@ -93,7 +94,7 @@ class ProductController {
         data: product,
       });
     } catch (error) {
-      logger.error(`Error in getProductById: ${error.message}`);
+      logger.error(`Lỗi trong getProductById nè: ${error.message}`);
       next(error);
     }
   }
@@ -130,7 +131,7 @@ class ProductController {
         data: result.products,
       });
     } catch (error) {
-      logger.error(`Error in searchProducts: ${error.message}`);
+      logger.error(`Lỗi trong searchProducts nè: ${error.message}`);
       next(error);
     }
   }
@@ -146,10 +147,13 @@ class ProductController {
 
       // Validate required fields
       if (!productData.name || !productData.price || !productData.category) {
-        return res.status(400).json({
-          success: false,
-          message: "Please provide name, price, and category",
-        });
+        // Dùng ApiError cho nhất quán nha anh
+        return next(
+          new ApiError(
+            400,
+            "Anh yêu ơi, cho em xin tên, giá và danh mục nha 🩷"
+          )
+        );
       }
 
       // Gọi service để tạo sản phẩm
@@ -158,16 +162,16 @@ class ProductController {
       // Response
       res.status(201).json({
         success: true,
-        message: "Product created successfully",
+        message: "Tạo sản phẩm thành công rồi nè anh yêu! 🎉",
         data: product,
       });
     } catch (error) {
       if (error.message === "Category not found") {
-        return res.status(400).json({
-          success: false,
-          message: error.message,
-        });
+        return next(
+          new ApiError(400, "Danh mục này hong có tìm thấy anh ơi 🥺")
+        );
       }
+      logger.error(`Lỗi trong createProduct nè: ${error.message}`);
       next(error);
     }
   }
@@ -188,32 +192,28 @@ class ProductController {
       // Response
       res.status(200).json({
         success: true,
-        message: "Product updated successfully",
+        message: "Cập nhật sản phẩm thành công mỹ mãn! ✨",
         data: updatedProduct,
       });
     } catch (error) {
       // Xử lý lỗi cụ thể
       if (error.message === "Product not found") {
-        return res.status(404).json({
-          success: false,
-          message: "Product not found",
-        });
+        return next(
+          new ApiError(404, "Sản phẩm này hong có tìm thấy anh ơi 🥺")
+        );
       }
 
       if (error.message === "Category not found") {
-        return res.status(400).json({
-          success: false,
-          message: "Category not found",
-        });
+        return next(
+          new ApiError(400, "Danh mục này hong có tìm thấy anh ơi 🥺")
+        );
       }
 
-      // Log lỗi
-      logger.error(`Error in updateProduct: ${error.message}`);
-
-      // Chuyển lỗi cho middleware error handler
+      logger.error(`Lỗi trong updateProduct nè: ${error.message}`);
       next(error);
     }
-  } /**
+  }
+  /**
    * Xóa sản phẩm (Admin) - Hỗ trợ cả hard delete và soft delete
    * @param {Object} req - Request object
    * @param {Object} res - Response object
@@ -233,11 +233,92 @@ class ProductController {
       });
     } catch (error) {
       if (error.statusCode === 404) {
-        return res.status(404).json({
-          success: false,
-          message: error.message,
-        });
+        // Service đã trả về lỗi có statusCode
+        return next(new ApiError(404, error.message));
       }
+      logger.error(`Lỗi trong deleteProduct nè: ${error.message}`);
+      next(error);
+    }
+  }
+
+  /**
+   * 🩷 Khôi phục tồn kho khi đơn hàng được hoàn tiền
+   * Liên quan đến UC-8.3
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   */
+  async restoreInventoryForRefund(req, res, next) {
+    const requestId = `REQ-REFUND-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    try {
+      const { orderId } = req.body;
+
+      if (!orderId) {
+        return next(
+          new ApiError(400, "Anh yêu ơi, cho em xin orderId với nha! 🩷")
+        );
+      }
+
+      logger.info(
+        `[${requestId}] Nhận yêu cầu khôi phục tồn kho cho đơn hàng hoàn tiền ${orderId}`
+      );
+      const result = await productService.restoreInventoryForRefund(
+        orderId,
+        requestId
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `Đã khôi phục tồn kho thành công cho ${result.restoredItems.length} sản phẩm từ đơn hàng hoàn tiền nè anh yêu! 🎉`,
+        restoredItems: result.restoredItems,
+        requestId,
+      });
+    } catch (error) {
+      logger.error(
+        `[${requestId}] Lỗi trong restoreInventoryForRefund controller: ${error.message}`
+      );
+      // Service đã xử lý và throw ApiError, nên mình chỉ cần next(error) thôi anh yêu ạ
+      next(error);
+    }
+  }
+
+  /**
+   * 🩷 Khôi phục tồn kho khi đơn hàng bị hủy mà chưa thanh toán
+   * Liên quan đến UC-8.4
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next middleware function
+   */
+  async restoreInventoryForCancelledOrder(req, res, next) {
+    const requestId = `REQ-CANCEL-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    try {
+      const { orderId } = req.body;
+
+      if (!orderId) {
+        return next(
+          new ApiError(400, "Anh yêu ơi, cho em xin orderId với nha! 🩷")
+        );
+      }
+
+      logger.info(
+        `[${requestId}] Nhận yêu cầu khôi phục tồn kho cho đơn hàng bị hủy ${orderId}`
+      );
+      const result = await productService.restoreInventoryForCancelledOrder(
+        orderId,
+        requestId
+      );
+
+      res.status(200).json({
+        success: true,
+        message: `Đã khôi phục tồn kho thành công cho ${result.restoredItems.length} sản phẩm từ đơn hàng bị hủy nè anh yêu! 🎉`,
+        restoredItems: result.restoredItems,
+        requestId,
+      });
+    } catch (error) {
+      logger.error(
+        `[${requestId}] Lỗi trong restoreInventoryForCancelledOrder controller: ${error.message}`
+      );
+      // Service đã xử lý và throw ApiError, nên mình chỉ cần next(error) thôi anh yêu ạ
       next(error);
     }
   }
